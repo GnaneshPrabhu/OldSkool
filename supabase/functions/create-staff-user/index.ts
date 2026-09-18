@@ -17,7 +17,7 @@ Deno.serve(async (req: Request) => {
     if(owner?.role!=="owner") return new Response(JSON.stringify({error:"Only an organization owner can create staff accounts"}),{status:403,headers:{"content-type":"application/json"}});
     const {data:newUser,error:createError}=await admin.auth.admin.createUser({email,password,email_confirm:true,user_metadata:{full_name,phone:phone||null}});
     if(createError) throw createError;
-    const {error:profileError}=await admin.from("profiles").upsert({id:newUser.user.id,full_name,phone:phone||null});
+    const {error:profileError}=await admin.from("profiles").upsert({id:newUser.user.id,full_name,phone:phone||null,must_change_password:true});
     if(profileError) throw profileError;
     const {error:memberError}=await admin.from("organization_members").insert({organization_id,user_id:newUser.user.id,role,branch_id,status:"active",title:role==="manager"?"Manager":"Trainer",specialty:specialty||null,joining_date:joining_date||new Date().toISOString().slice(0,10)});
     if(memberError) throw memberError;
